@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
@@ -21,9 +21,8 @@ if not SECRET_KEY:
     raise ValueError("SECRET_KEY is missing in .env file")
 
 
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/users/login",
-)
+
+http_bearer = HTTPBearer()
 
 password_hasher = PasswordHash.recommended()
 
@@ -53,7 +52,7 @@ def create_access_token(data: dict) -> str:
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
     db: Session = Depends(get_db),
 ):
     credentials_exception = HTTPException(
@@ -63,6 +62,7 @@ def get_current_user(
     )
 
     try:
+        token = credentials.credentials
         payload = jwt.decode(
             token,
             SECRET_KEY,
@@ -85,13 +85,3 @@ def get_current_user(
         raise credentials_exception
 
 
-def require_admin(
-    current_user: User = Depends(get_current_user),
-):
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admins can create polls",
-        )
-
-    return current_user

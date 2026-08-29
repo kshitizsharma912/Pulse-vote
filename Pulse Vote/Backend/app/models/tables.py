@@ -18,74 +18,32 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
-    email = Column(
-        String(255),
-        unique=True,
-        index=True,
-        nullable=False,
-    )
-    role = Column(
-        String(20),
-        nullable=False,
-        default="user",
-        server_default="user",
-    )
+    email = Column(String(255),unique=True,index=True,nullable=False,)
+    role = Column(String(20),nullable=False,default="user",server_default="user",)
     password_hash = Column(String(255), nullable=False)
-    created_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-    )
-
-    polls = relationship(
-        "Poll",
-        back_populates="creator",
-    )
-    votes = relationship(
-        "Vote",
-        back_populates="user",
-    )
+    created_at = Column(DateTime(timezone=True),server_default=func.now(),)
+    polls = relationship("Poll", back_populates="creator",)
+    votes = relationship("Vote",back_populates="user",)
 
 
 class Poll(Base):
     __tablename__ = "polls"
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        index=True,
-    )
-    question = Column(
-        Text,
-        nullable=False,
-    )
-    code = Column(
-        String(10),
-        unique=True,
-        index=True,
-        nullable=False,
-    )
-    creator_id = Column(
-        Integer,
-        ForeignKey("users.id"),
-        nullable=False,
-    )
-    created_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-    )
+    id = Column(Integer,primary_key=True,index=True,)
+    question = Column(Text,nullable=False,)
+    code = Column( String(10), unique=True, index=True, nullable=False,)
+    creator_id = Column(Integer,ForeignKey("users.id"), nullable=False,)
+    created_at = Column(DateTime(timezone=True),server_default=func.now(),)
 
     creator = relationship(
         "User",
-        back_populates="polls",
-    )
+        back_populates="polls",)
     options = relationship(
         "PollOption",
-        back_populates="poll",
-    )
+        back_populates="poll",)
     votes = relationship(
         "Vote",
-        back_populates="poll",
-    )
+        back_populates="poll",)
 
 
 class PollOption(Base):
@@ -94,26 +52,21 @@ class PollOption(Base):
     id = Column(
         Integer,
         primary_key=True,
-        index=True,
-    )
+        index=True,)
     option_text = Column(
         String(255),
-        nullable=False,
-    )
+        nullable=False,)
     poll_id = Column(
         Integer,
         ForeignKey("polls.id"),
-        nullable=False,
-    )
+        nullable=False,)
 
     poll = relationship(
         "Poll",
-        back_populates="options",
-    )
+        back_populates="options",)
     votes = relationship(
         "Vote",
-        back_populates="option",
-    )
+        back_populates="option",)
 
 
 class Vote(Base):
@@ -132,11 +85,7 @@ class Vote(Base):
         primary_key=True,
         index=True,
     )
-    user_id = Column(
-        Integer,
-        ForeignKey("users.id"),
-        nullable=False,
-    )
+    user_id = Column(Integer,ForeignKey("users.id"),nullable=False,)
     poll_id = Column(
         Integer,
         ForeignKey("polls.id"),
