@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.db.connection import engine, Base
 from app.routers.api import router as api_router
+from app.models.tables import User, Poll, PollOption, Vote
 
 app = FastAPI(
     title="PulseVote API",
@@ -20,7 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+Base.metadata.create_all(bind=engine)
 app.include_router(api_router)
 
 
